@@ -380,6 +380,15 @@ body {
             <span>Players</span>
             <button class="btn btn-sm btn-red" onclick="confirmResetPlayers()">Reset All</button>
           </div>
+          <!-- Inside the "card" div for Players -->
+           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+            <span></span>
+            <div>
+              <label class="btn btn-xs" style="cursor:pointer; background:var(--surface2); border:1px solid var(--border2)">
+                📂 Import CSV <input type="file" id="csv-import-input" accept=".csv" style="display:none" onchange="handleCSVImport(event)">
+              </label>
+            </div>
+          </div>
           <table class="tbl" style="min-width:500px">
             <thead><tr><th>Name</th><th>Rank</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="admin-players-tbody"></tbody>
