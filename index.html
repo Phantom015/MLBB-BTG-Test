@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MLBB Scrim Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0a0c12;
+  --surface:#13161f;
+  --surface2:#1c2030;
+  --surface3:#252a3a;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --text:#dde1ef;
+  --muted:#6b7290;
+  --accent:#5b8def;
+  --accent2:#8b5cf6;
+  --gold:#f0b429;
+  --green:#2dd4a0;
+  --red:#e05c5c;
+  --amber:#e8960a;
+  --r:10px;
+  --rlg:16px;
+  --font-head:'Syne',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+}
+
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+h1,h2,h3,h4{font-family:var(--font-head)}
+h1{font-size:22px;font-weight:700}
+h2{font-size:18px;font-weight:600}
+h3{font-size:15px;font-weight:600}
+
+/* Layout */
+.page{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+.page-wide{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
+
+/* Nav */
+.nav{
+  background:rgba(13,15,22,0.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:0 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  height:56px;position:sticky;top:0;z-index:100;
+}
+.nav-logo{font-family:var(--font-head);font-weight:800;font-size:17px;color:var(--gold);letter-spacing:0.04em;display:flex;align-items:center;gap:8px}
+.nav-links{display:flex;gap:1.25rem;align-items:center}
+.nav-links a{color:var(--muted);font-size:13px;transition:color .15s;cursor:pointer}
+.nav-links a:hover{color:var(--text);text-decoration:none}
+.nav-user{font-size:13px;color:var(--muted)}
+.nav-user strong{color:var(--text)}
+
+/* Cards */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--rlg);
+  padding:1.5rem;
+  margin-bottom:1.25rem;
+  transition:border-color .2s;
+}
+.card-title{font-family:var(--font-head);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:1rem}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 18px;
+  border-radius:var(--r);
+  border:1px solid var(--border2);
+  background:transparent;
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:13px;font-weight:500;
+  cursor:pointer;
+  transition:background .15s,border-color .15s,transform .1s;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.btn:hover{background:var(--surface2);text-decoration:none}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:#4a7de0;border-color:#4a7de0}
+.btn-green{background:var(--green);border-color:var(--green);color:#051a12}
+.btn-green:hover{background:#24b88a}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff}
+.btn-red:hover{background:#c44}
+.btn-gold{background:var(--gold);border-color:var(--gold);color:#1a0e00}
+.btn-gold:hover{background:#d4a020}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+
+/* Forms */
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+input[type=text],select,textarea{
+  width:100%;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  color:var(--text);
+  font-size:14px;font-family:var(--font-body);
+  padding:9px 12px;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+input[type=text]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,141,239,.12)}
+select option{background:var(--surface2)}
+
+/* Grid */
+.row-center{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;border-bottom:1px solid var(--border)}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,0.018)}
+
+/* Badges */
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;font-family:var(--font-head)}
+.badge-blue{background:rgba(91,141,239,.16);color:#82a9f7}
+.badge-green{background:rgba(45,212,160,.15);color:var(--green)}
+.badge-red{background:rgba(224,92,92,.16);color:#e88080}
+.badge-gold{background:rgba(240,180,41,.16);color:var(--gold)}
+.badge-purple{background:rgba(139,92,246,.16);color:#b49ef9}
+.badge-gray{background:rgba(255,255,255,.07);color:var(--muted)}
+
+/* Alerts */
+.alert{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:1rem}
+.alert-err{background:rgba(224,92,92,.13);border:1px solid rgba(224,92,92,.28);color:#e88080}
+.alert-ok{background:rgba(45,212,160,.12);border:1px solid rgba(45,212,160,.25);color:var(--green)}
+.alert-info{background:rgba(91,141,239,.1);border:1px solid rgba(91,141,239,.22);color:#82a9f7}
+
+/* Auth */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+.auth-box{width:100%;max-width:420px}
+.auth-logo{text-align:center;margin-bottom:2.5rem}
+.auth-logo h1{font-family:var(--font-head);color:var(--gold);font-size:32px;font-weight:800;letter-spacing:.06em}
+.auth-logo p{color:var(--muted);font-size:13px;margin-top:6px;letter-spacing:.03em}
+
+/* Comfort grid */
+.comfort-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px}
+.comfort-col{text-align:center}
+.comfort-col .clabel{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.06em;margin-bottom:5px;display:block;font-family:var(--font-head)}
+.comfort-btns{display:flex;flex-direction:column;gap:4px}
+.cbtn{
+  padding:5px 0;font-size:11px;font-weight:600;font-family:var(--font-head);
+  border:1px solid var(--border2);background:var(--surface2);color:var(--muted);
+  border-radius:6px;cursor:pointer;transition:all .12s;width:100%
+}
+.cbtn:hover{border-color:var(--accent);color:var(--text)}
+.cbtn.sel-0{background:var(--surface2);color:var(--muted)}
+.cbtn.sel-1{background:rgba(232,150,10,.18);border-color:var(--amber);color:var(--amber)}
+.cbtn.sel-2{background:rgba(45,212,160,.16);border-color:var(--green);color:var(--green)}
+.cbtn.sel-3{background:rgba(91,141,239,.18);border-color:var(--accent);color:var(--accent)}
+
+/* Metric cards */
+.metric{background:var(--surface2);border-radius:var(--r);padding:14px 18px;border:1px solid var(--border)}
+.metric-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-family:var(--font-head);font-weight:700}
+.metric-val{font-size:26px;font-weight:800;color:var(--text);font-family:var(--font-head)}
+
+/* Teams */
+.teams-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+.team-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rlg);padding:1rem 1.25rem}
+.team-header{font-family:var(--font-head);font-size:13px;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.team-1-h{color:var(--accent)}
+.team-2-h{color:var(--red)}
+.team-3-h{color:var(--green)}
+.team-4-h{color:var(--gold)}
+.team-player-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.team-player-row:last-child{border-bottom:none}
+
+/* Page views */
+.view{display:none}
+.view.active{display:block}
+.auth-view{display:none}
+.auth-view.active{display:flex}
+
+/* Decorative bg accent */
+body::before{
+  content:'';position:fixed;top:-200px;right:-200px;
+  width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(91,141,239,.05) 0%,transparent 65%);
+  pointer-events:none;z-index:0;
+}
+body::after{
+  content:'';position:fixed;bottom:-100px;left:-100px;
+  width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(139,92,246,.04) 0%,transparent 65%);
+  pointer-events:none;z-index:0;
+}
+
+/* Fade animation */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeIn .22s ease}
+
+/* Responsive */
+@media(max-width:700px){
+  .grid-2,.grid-3,.teams-grid{grid-template-columns:1fr}
+  .comfort-grid{gap:4px}
+  .nav{padding:0 1rem}
+  .page,.page-wide{padding:1rem}
+  .nav-links{gap:.75rem}
+}
+
+/* Tab switcher */
+.tab-row{display:flex;gap:6px;margin-bottom:1.25rem}
+.tab-btn{padding:7px 16px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .15s;font-weight:500}
+.tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.tab-btn:hover:not(.active){background:var(--surface2);color:var(--text)}
+
+/* Scrim status box */
+.status-box{background:var(--surface2);border-radius:var(--r);padding:14px 16px;margin-bottom:1rem;border:1px solid var(--border)}
+
+/* Ensure the auth view fills the whole screen and centres its content */
+.auth-view.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Override any potential box‑sizing / margin issues */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+
+</style>
+</head>
+<body>
+
+<!-- NAV (hidden on auth) -->
+<nav class="nav" id="main-nav" style="display:none">
+  <span class="nav-logo">⚔ SCRIM HUB <span id="nav-admin-badge" class="badge badge-red" style="display:none;font-size:10px;margin-left:2px">ADMIN</span></span>
+  <div class="nav-links">
+    <a onclick="showPage('players')">All Players</a>
+    <a id="nav-dashboard-link" onclick="showPage('dashboard')">Dashboard</a>
+    <span class="nav-user">Logged in as <strong id="nav-username"></strong></span>
+    <button class="btn btn-sm" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<!-- ===================== AUTH PAGE ===================== -->
+<div class="auth-view active" id="page-auth">
+  <div class="auth-box fade">
+    <div class="auth-logo">
+      <h1>⚔ SCRIM HUB</h1>
+      <p>MLBB Scrimmage Manager</p>
+    </div>
+    <div class="card">
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-login" onclick="switchAuthTab('login')">Login</button>
+        <button class="tab-btn" id="tab-register" onclick="switchAuthTab('register')">Register</button>
+      </div>
+      <div id="auth-msg"></div>
+      <div id="auth-login-form">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" id="login-name" placeholder="Enter your registered name" autocomplete="off">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Login</button>
+        <p style="margin-top:10px;font-size:12px;color:var(--muted);text-align:center">Admin? Use your admin name to log in.</p>
+      </div>
+      <div id="auth-register-form" style="display:none">
+        <div class="form-group">
+          <label>Your In-Game Name</label>
+          <input type="text" id="reg-name" placeholder="e.g. ShadowHunter" autocomplete="off">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doRegister()">Create Account</button>
+        <p style="margin-top:10px;font-size:12px;color:var(--muted);text-align:center">No password required — just your name.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DASHBOARD PAGE ===================== -->
+<div class="view" id="page-dashboard">
+  <div class="page fade">
+    <div id="dash-msg"></div>
+
+    <div class="card">
+      <div class="card-title">My Profile</div>
+      <div id="dash-locked-notice" style="display:none" class="alert alert-info">🔒 Your profile is locked. Contact admin to make changes.</div>
+      <div class="form-group">
+        <label>Rank</label>
+        <select id="dash-rank"></select>
+      </div>
+      <div class="form-group">
+        <label>Role Comfort</label>
+        <div class="comfort-grid" id="dash-comfort-grid"></div>
+      </div>
+      <button class="btn btn-primary" id="dash-save-btn" onclick="saveDashStats()">Save Stats</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Today's Scrimmage — <span id="dash-date"></span></span>
+        <span class="badge badge-green" id="dash-joining-count">0 joining</span>
+      </div>
+
+      <div class="status-box">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Your status</div>
+        <div id="dash-scrim-status"></div>
+      </div>
+
+      <table class="tbl" id="dash-scrim-table">
+        <thead><tr><th>Player</th><th>Role</th><th>Rank</th></tr></thead>
+        <tbody id="dash-scrim-tbody"></tbody>
+      </table>
+      <p id="dash-scrim-empty" style="font-size:13px;color:var(--muted);display:none">No one has joined today's scrimmage yet.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PLAYERS PAGE ===================== -->
+<div class="view" id="page-players">
+  <div class="page-wide fade">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <div>
+        <h1>All Players</h1>
+        <p style="color:var(--muted);font-size:13px;margin-top:4px" id="players-count"></p>
+      </div>
+    </div>
+    <div class="card" style="overflow-x:auto">
+      <table class="tbl" style="min-width:700px">
+        <thead>
+          <tr><th>Player</th><th>Rank</th><th>Gold</th><th>Exp</th><th>Jungle</th><th>Mage</th><th>Roam</th><th>Status</th></tr>
+        </thead>
+        <tbody id="players-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ADMIN PAGE ===================== -->
+<div class="view" id="page-admin">
+  <div class="page-wide fade">
+    <div id="admin-msg"></div>
+
+    <div class="grid-3" style="margin-bottom:1.5rem">
+      <div class="metric"><div class="metric-label">Total Players</div><div class="metric-val" id="admin-metric-players">0</div></div>
+      <div class="metric"><div class="metric-label">Joining Today</div><div class="metric-val" id="admin-metric-joining">0</div></div>
+      <div class="metric"><div class="metric-label">Locked Profiles</div><div class="metric-val" id="admin-metric-locked">0</div></div>
+    </div>
+
+    <div class="grid-2" style="gap:1.25rem;align-items:start">
+      <!-- Left col -->
+      <div>
+        <div class="card" id="admin-edit-card" style="display:none;border-color:var(--accent)">
+          <div class="card-title">Editing — <span id="admin-edit-name"></span></div>
+          <div class="form-group">
+            <label>Rank</label>
+            <select id="admin-edit-rank"></select>
+          </div>
+          <div class="form-group">
+            <label>Role Comfort</label>
+            <div class="comfort-grid" id="admin-edit-comfort"></div>
+          </div>
+          <div class="row-center">
+            <button class="btn btn-primary" onclick="saveEditPlayer()">Save Changes</button>
+            <button class="btn" onclick="closeEditPlayer()">Cancel</button>
+          </div>
+        </div>
+
+        <div class="card" style="overflow-x:auto">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+            <span>Players</span>
+            <button class="btn btn-sm btn-red" onclick="confirmResetPlayers()">Reset All</button>
+          </div>
+          <table class="tbl" style="min-width:500px">
+            <thead><tr><th>Name</th><th>Rank</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="admin-players-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right col -->
+      <div>
+        <div class="card">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+            <span>Today's Scrimmage — <span id="admin-date"></span></span>
+            <button class="btn btn-sm btn-red" onclick="confirmClearScrim()">Clear</button>
+          </div>
+
+          <div class="row-center" style="flex-wrap:wrap;gap:6px;margin-bottom:1rem">
+            <select id="admin-add-player" style="flex:1"></select>
+            <select id="admin-add-role" style="width:auto">
+              <option value="Auto">Auto</option>
+              <option value="Gold">Gold</option>
+              <option value="Exp">Exp</option>
+              <option value="Jungle">Jungle</option>
+              <option value="Mage">Mage</option>
+              <option value="Roam">Roam</option>
+            </select>
+            <label style="font-size:12px;display:flex;align-items:center;gap:4px;color:var(--muted)">
+              <input type="checkbox" id="admin-role-lock"> Lock role
+            </label>
+            <button class="btn btn-green btn-sm" onclick="adminAddToScrim()">+ Add</button>
+          </div>
+
+          <table class="tbl" id="admin-scrim-table">
+            <thead><tr><th>Player</th><th>Role</th><th>Lock</th><th></th></tr></thead>
+            <tbody id="admin-scrim-tbody"></tbody>
+          </table>
+          <p id="admin-scrim-empty" style="font-size:13px;color:var(--muted);display:none">No one in today's scrimmage list.</p>
+        </div>
+
+        <!-- Team Generator -->
+        <div class="card">
+          <div class="card-title">Team Generator</div>
+          <div id="team-gen-inner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== CONSTANTS =====================
+const ADMIN_NAME = 'admin';
+const RANK_NAMES = ['','Warrior','Elite','Master','Grandmaster','Epic','Legend','Mythic','Mythical Honor','Mythical Glory','Mythical Immortal'];
+const ROLES = [{key:'gold',label:'Gold'},{key:'exp',label:'Exp'},{key:'jungle',label:'Jungle'},{key:'mage',label:'Mage'},{key:'roam',label:'Roam'}];
+const COMFORT_LABELS = ['—','Possible','Good','Main'];
+const COMFORT_MULT = [0,0.5,0.75,1.0];
+
+// ===================== STORAGE =====================
+function getPlayers(){return JSON.parse(localStorage.getItem('scrimhub_players')||'[]')}
+function savePlayers(p){localStorage.setItem('scrimhub_players',JSON.stringify(p))}
+function getScrimmage(){return JSON.parse(localStorage.getItem('scrimhub_scrimmage')||'{}')}
+function saveScrimmage(s){localStorage.setItem('scrimhub_scrimmage',JSON.stringify(s))}
+function getSession(){return localStorage.getItem('scrimhub_session')||null}
+function setSession(n){localStorage.setItem('scrimhub_session',n)}
+function clearSession(){localStorage.removeItem('scrimhub_session')}
+function todayKey(){return new Date().toISOString().slice(0,10)}
+
+function getPlayer(name){return getPlayers().find(p=>p.name.toLowerCase()===name.toLowerCase())||null}
+function upsertPlayer(data){
+  let players=getPlayers();
+  const idx=players.findIndex(p=>p.name.toLowerCase()===data.name.toLowerCase());
+  if(idx>=0){players[idx]={...players[idx],...data}}else{players.push({locked:false,...data})}
+  savePlayers(players);
+}
+function getTodayScrim(){
+  const s=getScrimmage();
+  return s[todayKey()]||[];
+}
+function saveScrimEntry(name,role,joining,role_locked){
+  const s=getScrimmage();const tk=todayKey();
+  if(!s[tk])s[tk]=[];
+  const idx=s[tk].findIndex(e=>e.name.toLowerCase()===name.toLowerCase());
+  if(idx>=0){
+    s[tk][idx]={...s[tk][idx],role,joining,role_locked:role_locked??s[tk][idx].role_locked??false};
+  }else{
+    s[tk].push({name,role,joining,role_locked:role_locked??false});
+  }
+  saveScrimmage(s);
+}
+function clearTodayScrim(){const s=getScrimmage();delete s[todayKey()];saveScrimmage(s)}
+
+// ===================== AUTH =====================
+function isAdmin(){return getSession()===ADMIN_NAME}
+
+function doLogin(){
+  const name=(document.getElementById('login-name').value||'').trim();
+  if(!name){showAuthMsg('Enter your name.','err');return}
+  if(name===ADMIN_NAME){setSession(ADMIN_NAME);afterLogin();return}
+  const p=getPlayer(name);
+  if(!p){showAuthMsg('No player found. Register first.','err');return}
+  setSession(p.name);afterLogin();
+}
+function doRegister(){
+  const name=(document.getElementById('reg-name').value||'').trim();
+  if(!name){showAuthMsg('Enter your name.','err');return}
+  if(name.toLowerCase()===ADMIN_NAME.toLowerCase()){showAuthMsg('That name is reserved.','err');return}
+  if(getPlayer(name)){showAuthMsg('Name already taken. Login instead.','err');return}
+  upsertPlayer({name,rank:1,comfort_gold:0,comfort_exp:0,comfort_jungle:0,comfort_mage:0,comfort_roam:0,locked:false});
+  setSession(name);afterLogin();
+}
+function afterLogin(){
+  document.getElementById('page-auth').classList.remove('active');
+  document.getElementById('main-nav').style.display='flex';
+  document.getElementById('nav-username').textContent=getSession();
+  if(isAdmin()){
+    document.getElementById('nav-admin-badge').style.display='inline-block';
+    document.getElementById('nav-dashboard-link').onclick=()=>showPage('admin');
+    document.getElementById('nav-dashboard-link').textContent='Admin Panel';
+    showPage('admin');
+  }else{
+    document.getElementById('nav-dashboard-link').textContent='Dashboard';
+    showPage('dashboard');
+  }
+}
+function logout(){clearSession();location.reload()}
+function switchAuthTab(tab){
+  document.getElementById('auth-login-form').style.display=tab==='login'?'block':'none';
+  document.getElementById('auth-register-form').style.display=tab==='register'?'block':'none';
+  document.getElementById('tab-login').classList.toggle('active',tab==='login');
+  document.getElementById('tab-register').classList.toggle('active',tab==='register');
+  document.getElementById('auth-msg').innerHTML='';
+}
+function showAuthMsg(msg,type){
+  document.getElementById('auth-msg').innerHTML=`<div class="alert alert-${type==='err'?'err':'ok'}">${esc(msg)}</div>`;
+}
+// Enter key on login/register
+document.getElementById('login-name').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+document.getElementById('reg-name').addEventListener('keydown',e=>{if(e.key==='Enter')doRegister()});
+
+// ===================== PAGE ROUTING =====================
+function showPage(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const el=document.getElementById('page-'+name);
+  if(el){el.classList.add('active')}
+  if(name==='dashboard')renderDashboard();
+  if(name==='players')renderPlayers();
+  if(name==='admin')renderAdmin();
+}
+
+// ===================== HELPERS =====================
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function fmtDate(){return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function showMsg(elId,msg,type='ok'){
+  const el=document.getElementById(elId);
+  if(!el)return;
+  el.innerHTML=`<div class="alert alert-${type}">${esc(msg)}</div>`;
+  setTimeout(()=>{el.innerHTML=''},3500);
+}
+function buildRankSelect(elId,val){
+  const sel=document.getElementById(elId);if(!sel)return;
+  sel.innerHTML='';
+  for(let i=1;i<=10;i++){const o=document.createElement('option');o.value=i;o.textContent=RANK_NAMES[i];if(i===val)o.selected=true;sel.appendChild(o)}
+}
+function buildComfortGrid(containerId,player,prefix){
+  const grid=document.getElementById(containerId);if(!grid)return;
+  grid.innerHTML='';
+  ROLES.forEach(({key,label})=>{
+    const val=player['comfort_'+key]||0;
+    const col=document.createElement('div');col.className='comfort-col';
+    col.innerHTML=`<span class="clabel">${label}</span><div class="comfort-btns">${
+      [0,1,2,3].map(v=>`<button type="button" class="cbtn${val===v?' sel-'+v:''}" onclick="setComfort('${containerId}','${key}',${v},'${prefix}')">${COMFORT_LABELS[v]}</button>`).join('')
+    }</div><input type="hidden" id="${prefix}hc_${key}" value="${val}">`;
+    grid.appendChild(col);
+  });
+}
+function setComfort(gridId,key,val,prefix){
+  document.getElementById(prefix+'hc_'+key).value=val;
+  const grid=document.getElementById(gridId);
+  const col=grid.querySelector(`#${prefix}hc_${key}`).closest('.comfort-col');
+  col.querySelectorAll('.cbtn').forEach((btn,i)=>{btn.className='cbtn'+(i===val?' sel-'+val:'')});
+}
+function getComfortVals(prefix){
+  const out={};
+  ROLES.forEach(({key})=>{out['comfort_'+key]=parseInt(document.getElementById(prefix+'hc_'+key)?.value||0)});
+  return out;
+}
+
+// ===================== DASHBOARD =====================
+function renderDashboard(){
+  const me=getSession();
+  const player=getPlayer(me)||{name:me,rank:1,comfort_gold:0,comfort_exp:0,comfort_jungle:0,comfort_mage:0,comfort_roam:0,locked:false};
+  document.getElementById('dash-date').textContent=fmtDate();
+  document.getElementById('dash-locked-notice').style.display=player.locked?'block':'none';
+  document.getElementById('dash-save-btn').disabled=player.locked;
+  buildRankSelect('dash-rank',player.rank);
+  buildComfortGrid('dash-comfort-grid',player,'dash_');
+  renderDashScrim(me);
+}
+function saveDashStats(){
+  const me=getSession();
+  const player=getPlayer(me);
+  if(player&&player.locked){showMsg('dash-msg','Your profile is locked by admin.','err');return}
+  const rank=parseInt(document.getElementById('dash-rank').value);
+  upsertPlayer({name:me,rank,...getComfortVals('dash_')});
+  showMsg('dash-msg','Stats updated!','ok');
+}
+function renderDashScrim(me){
+  const scrim=getTodayScrim();
+  const joining=scrim.filter(s=>s.joining==='1');
+  document.getElementById('dash-joining-count').textContent=joining.length+' joining';
+  const myEntry=scrim.find(s=>s.name.toLowerCase()===me.toLowerCase());
+  const statusDiv=document.getElementById('dash-scrim-status');
+  if(myEntry&&myEntry.joining==='1'){
+    const roleHtml=myEntry.role==='Auto'?'<span class="badge badge-gray">Auto</span>':`<span class="badge badge-purple">${esc(myEntry.role)}</span>`;
+    const lockHtml=myEntry.role_locked?'<span class="badge badge-red">🔒 Locked by admin</span>':'';
+    const changeRole=myEntry.role_locked?'':
+      `<div style="margin-top:8px"><div class="row-center">
+        <select id="dash-role-change">
+          <option value="Auto"${myEntry.role==='Auto'?' selected':''}>Auto</option>
+          ${ROLES.map(r=>`<option value="${r.label}"${myEntry.role===r.label?' selected':''}>${r.label}</option>`).join('')}
+        </select>
+        <button class="btn btn-sm" onclick="dashUpdateRole()">Update Role</button>
+      </div></div>`;
+    statusDiv.innerHTML=`<div class="row-center">
+      <span class="badge badge-green">✓ Joining</span>
+      <span style="font-size:13px;color:var(--muted)">as ${roleHtml}</span>
+      ${lockHtml}
+      <button class="btn btn-sm btn-red" style="margin-left:auto" onclick="dashScrimOut()">Can't make it</button>
+    </div>${changeRole}`;
+  }else{
+    statusDiv.innerHTML=`<div class="row-center">
+      <select id="dash-role-join">
+        <option value="Auto">Auto</option>
+        ${ROLES.map(r=>`<option value="${r.label}">${r.label}</option>`).join('')}
+      </select>
+      <button class="btn btn-green" onclick="dashJoin()">Join Scrimmage</button>
+    </div>`;
+  }
+  const tbody=document.getElementById('dash-scrim-tbody');
+  const empty=document.getElementById('dash-scrim-empty');
+  tbody.innerHTML='';
+  if(joining.length===0){empty.style.display='block';document.getElementById('dash-scrim-table').style.display='none';return}
+  empty.style.display='none';document.getElementById('dash-scrim-table').style.display='table';
+  joining.forEach(s=>{
+    const sp=getPlayer(s.name);
+    const roleHtml=s.role==='Auto'?'<span class="badge badge-gray">Auto</span>':`<span class="badge badge-purple">${esc(s.role)}</span>`;
+    const lockHtml=s.role_locked?'<span class="badge badge-red" style="font-size:10px">🔒</span>':'';
+    tbody.innerHTML+=`<tr>
+      <td><strong>${esc(s.name)}</strong>${s.name.toLowerCase()===me.toLowerCase()?' <span class="badge badge-blue">You</span>':''}</td>
+      <td>${roleHtml} ${lockHtml}</td>
+      <td>${sp?RANK_NAMES[sp.rank]:'—'}</td>
+    </tr>`;
+  });
+}
+function dashJoin(){
+  const role=document.getElementById('dash-role-join')?.value||'Auto';
+  saveScrimEntry(getSession(),role,'1',false);
+  showMsg('dash-msg','Joined scrimmage!','ok');
+  renderDashScrim(getSession());
+}
+function dashScrimOut(){
+  const me=getSession();
+  const scrim=getTodayScrim();
+  const my=scrim.find(s=>s.name.toLowerCase()===me.toLowerCase());
+  saveScrimEntry(me,my?.role||'','0');
+  showMsg('dash-msg','Marked as not joining.','ok');
+  renderDashScrim(me);
+}
+function dashUpdateRole(){
+  const me=getSession();
+  const role=document.getElementById('dash-role-change')?.value||'Auto';
+  const scrim=getTodayScrim();
+  const my=scrim.find(s=>s.name.toLowerCase()===me.toLowerCase());
+  if(my&&my.role_locked){showMsg('dash-msg','Your role is locked by admin.','err');return}
+  saveScrimEntry(me,role,'1',my?.role_locked||false);
+  showMsg('dash-msg','Role updated!','ok');
+  renderDashScrim(me);
+}
+
+// ===================== PLAYERS =====================
+function renderPlayers(){
+  const players=getPlayers();
+  const me=getSession();
+  document.getElementById('players-count').textContent=players.length+' registered players';
+  const COMFORT_BADGE=['badge-gray','badge-gold','badge-green','badge-blue'];
+  const tbody=document.getElementById('players-tbody');
+  tbody.innerHTML='';
+  if(players.length===0){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem">No players registered yet.</td></tr>';return}
+  players.forEach(p=>{
+    tbody.innerHTML+=`<tr>
+      <td><strong>${esc(p.name)}</strong>${p.name.toLowerCase()===me.toLowerCase()?' <span class="badge badge-blue" style="margin-left:4px">You</span>':''}</td>
+      <td><span class="badge badge-gold">${RANK_NAMES[p.rank]}</span></td>
+      ${['gold','exp','jungle','mage','roam'].map(r=>`<td><span class="badge ${COMFORT_BADGE[p['comfort_'+r]||0]}">${COMFORT_LABELS[p['comfort_'+r]||0]}</span></td>`).join('')}
+      <td>${p.locked?'<span class="badge badge-red">🔒 Locked</span>':'<span class="badge badge-green">Open</span>'}</td>
+    </tr>`;
+  });
+}
+
+// ===================== ADMIN =====================
+let editingPlayer=null;
+function renderAdmin(){
+  const players=getPlayers();
+  const scrim=getTodayScrim();
+  const joining=scrim.filter(s=>s.joining==='1');
+  document.getElementById('admin-date').textContent=fmtDate();
+  document.getElementById('admin-metric-players').textContent=players.length;
+  document.getElementById('admin-metric-joining').textContent=joining.length;
+  document.getElementById('admin-metric-locked').textContent=players.filter(p=>p.locked).length;
+  renderAdminPlayers(players,joining);
+  renderAdminScrim(joining,players);
+  renderTeamGen(joining);
+}
+function renderAdminPlayers(players,joining){
+  const tbody=document.getElementById('admin-players-tbody');
+  tbody.innerHTML='';
+  if(!players.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No players yet.</td></tr>';return}
+  players.forEach(p=>{
+    tbody.innerHTML+=`<tr>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td><span class="badge badge-gold">${RANK_NAMES[p.rank]}</span></td>
+      <td>${p.locked?'<span class="badge badge-red">🔒 Locked</span>':'<span class="badge badge-green">Open</span>'}</td>
+      <td><div class="row-center" style="gap:5px;flex-wrap:nowrap">
+        <button class="btn btn-xs" onclick="openEditPlayer('${esc(p.name)}')">Edit</button>
+        <button class="btn btn-xs" onclick="toggleLock('${esc(p.name)}')">${p.locked?'Unlock':'Lock'}</button>
+        <button class="btn btn-xs btn-red" onclick="deletePlayer('${esc(p.name)}')">Del</button>
+      </div></td>
+    </tr>`;
+  });
+  // populate add-to-scrim dropdown
+  const sel=document.getElementById('admin-add-player');
+  sel.innerHTML=players.length?players.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}</option>`).join(''):'<option value="">No players</option>';
+}
+function renderAdminScrim(joining,players){
+  const tbody=document.getElementById('admin-scrim-tbody');
+  const empty=document.getElementById('admin-scrim-empty');
+  const tbl=document.getElementById('admin-scrim-table');
+  tbody.innerHTML='';
+  if(!joining.length){empty.style.display='block';tbl.style.display='none';return}
+  empty.style.display='none';tbl.style.display='table';
+  joining.forEach(s=>{
+    const sp=getPlayer(s.name);
+    const roleHtml=s.role==='Auto'?'<span class="badge badge-gray">Auto</span>':`<span class="badge badge-purple">${esc(s.role)}</span>`;
+    const lockIcon=s.role_locked?'<span class="badge badge-red" style="font-size:10px">🔒</span>':'';
+    const changeRole=s.role_locked?'':
+      `<select style="font-size:11px;padding:2px;width:auto" onchange="adminChangeRole('${esc(s.name)}',this.value)">
+        <option value="">Change</option>
+        <option value="Auto">Auto</option>
+        ${ROLES.map(r=>`<option value="${r.label}">${r.label}</option>`).join('')}
+      </select>`;
+    tbody.innerHTML+=`<tr>
+      <td><strong>${esc(s.name)}</strong>${sp?` <span class="badge badge-gold" style="margin-left:4px">${RANK_NAMES[sp.rank]}</span>`:''}</td>
+      <td style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${roleHtml} ${lockIcon} ${changeRole}</td>
+      <td><button class="btn btn-xs" onclick="adminToggleScrimLock('${esc(s.name)}')">${s.role_locked?'Unlock':'Lock'}</button></td>
+      <td><button class="btn btn-xs btn-red" onclick="adminRemoveFromScrim('${esc(s.name)}')">Remove</button></td>
+    </tr>`;
+  });
+}
+
+function openEditPlayer(name){
+  editingPlayer=name;
+  const p=getPlayer(name);if(!p)return;
+  document.getElementById('admin-edit-card').style.display='block';
+  document.getElementById('admin-edit-name').textContent=name;
+  buildRankSelect('admin-edit-rank',p.rank);
+  buildComfortGrid('admin-edit-comfort',p,'aedit_');
+  document.getElementById('admin-edit-card').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeEditPlayer(){
+  editingPlayer=null;
+  document.getElementById('admin-edit-card').style.display='none';
+}
+function saveEditPlayer(){
+  if(!editingPlayer)return;
+  const rank=parseInt(document.getElementById('admin-edit-rank').value);
+  upsertPlayer({name:editingPlayer,rank,...getComfortVals('aedit_')});
+  showMsg('admin-msg',`Player '${editingPlayer}' updated.`,'ok');
+  closeEditPlayer();
+  renderAdmin();
+}
+function toggleLock(name){
+  const players=getPlayers();
+  const p=players.find(x=>x.name.toLowerCase()===name.toLowerCase());
+  if(!p)return;
+  p.locked=!p.locked;
+  savePlayers(players);
+  showMsg('admin-msg',`Player '${name}' ${p.locked?'locked':'unlocked'}.`,'ok');
+  renderAdmin();
+}
+function deletePlayer(name){
+  if(!confirm(`Delete player '${name}'?`))return;
+  savePlayers(getPlayers().filter(p=>p.name.toLowerCase()!==name.toLowerCase()));
+  showMsg('admin-msg',`Player '${name}' deleted.`,'ok');
+  renderAdmin();
+}
+function confirmResetPlayers(){
+  if(!confirm('Reset ALL players?'))return;
+  savePlayers([]);
+  showMsg('admin-msg','All players reset.','ok');
+  renderAdmin();
+}
+function adminAddToScrim(){
+  const name=document.getElementById('admin-add-player').value;
+  const role=document.getElementById('admin-add-role').value;
+  const locked=document.getElementById('admin-role-lock').checked;
+  if(!name)return;
+  saveScrimEntry(name,role,'1',locked);
+  document.getElementById('admin-role-lock').checked=false;
+  showMsg('admin-msg',`${name} added to scrimmage${role!=='Auto'?' as '+role:' (auto role)'}.`,'ok');
+  renderAdmin();
+}
+function adminRemoveFromScrim(name){
+  saveScrimEntry(name,'','0');
+  showMsg('admin-msg',`${name} removed from scrimmage.`,'ok');
+  renderAdmin();
+}
+function adminToggleScrimLock(name){
+  const scrim=getTodayScrim();
+  const s=scrim.find(x=>x.name.toLowerCase()===name.toLowerCase());
+  if(!s)return;
+  const newLock=!s.role_locked;
+  saveScrimEntry(name,s.role,s.joining,newLock);
+  showMsg('admin-msg',`Role lock for ${name} ${newLock?'enabled':'disabled'}.`,'ok');
+  renderAdmin();
+}
+function adminChangeRole(name,newRole){
+  if(!newRole)return;
+  const scrim=getTodayScrim();
+  const s=scrim.find(x=>x.name.toLowerCase()===name.toLowerCase());
+  if(!s)return;
+  saveScrimEntry(name,newRole,s.joining,s.role_locked);
+  showMsg('admin-msg',`${name} role changed to ${newRole}.`,'ok');
+  renderAdmin();
+}
+function confirmClearScrim(){
+  if(!confirm('Clear today\'s scrimmage list?'))return;
+  clearTodayScrim();
+  showMsg('admin-msg','Today\'s scrimmage cleared.','ok');
+  renderAdmin();
+}
+
+// ===================== TEAM GENERATOR =====================
+function renderTeamGen(joining){
+  const el=document.getElementById('team-gen-inner');
+  const k=Math.floor(joining.length/5);
+  if(k<2){
+    el.innerHTML=`<div class="alert alert-info">Need at least 10 players to form 2 teams. Currently: ${joining.length}.</div>`;
+    return;
+  }
+  const subs=joining.length-(k*5);
+  el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-bottom:10px">
+    ${joining.length} players joining → <strong>${k} teams</strong> possible, <strong>${subs} substitutes</strong>.
+  </p>
+  <button class="btn btn-gold" onclick="generateTeams()" style="width:100%;justify-content:center;margin-bottom:.5rem">⚡ Generate Balanced Teams</button>
+  <button id="copy-md-btn" class="btn" style="display:none;width:100%;justify-content:center;margin-bottom:1rem" onclick="copyMarkdown()">📋 Copy as Markdown</button>
+  <div id="teams-out"></div><div id="subs-out"></div>`;
+}
+
+function effectiveScore(p,role){return p.rank*(COMFORT_MULT[p.comfort[role]||0])}
+
+function assignRolesGreedy(pool,K){
+  const fixed={};const autoIdx=[];
+  pool.forEach((p,i)=>{
+    if(p.fixedRole){if(!fixed[p.fixedRole])fixed[p.fixedRole]=[];fixed[p.fixedRole].push(i)}
+    else autoIdx.push(i);
+  });
+  for(const r of ['Gold','Exp','Jungle','Mage','Roam']){if((fixed[r]?.length||0)>K)return null}
+  const used=new Array(pool.length).fill(false);
+  const assignments=[];
+  for(const role of ['Gold','Exp','Jungle','Mage','Roam']){
+    const fx=fixed[role]||[];const needed=K-fx.length;
+    fx.forEach(i=>{assignments.push({player:pool[i],role,score:effectiveScore(pool[i],role)});used[i]=true});
+    if(needed>0){
+      const elig=autoIdx.filter(i=>!used[i]&&(pool[i].comfort[role]||0)>0)
+        .sort((a,b)=>effectiveScore(pool[b],role)-effectiveScore(pool[a],role));
+      if(elig.length<needed)return null;
+      for(let j=0;j<needed;j++){const idx=elig[j];assignments.push({player:pool[idx],role,score:effectiveScore(pool[idx],role)});used[idx]=true}
+    }
+  }
+  return assignments;
+}
+
+function distributeTeams(assignments,K){
+  const rm={};['Gold','Exp','Jungle','Mage','Roam'].forEach(r=>rm[r]=[]);
+  assignments.forEach(a=>rm[a.role].push(a));
+  for(const r of Object.keys(rm))rm[r].sort((a,b)=>b.score-a.score);
+  const teams=Array.from({length:K},()=>({players:[],total:0}));
+  for(const role of ['Gold','Exp','Jungle','Mage','Roam']){
+    const ti=teams.map((_,i)=>i).sort((a,b)=>teams[a].total-teams[b].total);
+    for(let i=0;i<K;i++){const t=teams[ti[i]];const a=rm[role][i];t.players.push(a);t.total+=a.score}
+  }
+  return teams;
+}
+
+function generateTeams(){
+  const joining=getTodayScrim().filter(s=>s.joining==='1');
+  const pool=joining.map(s=>{
+    const sp=getPlayer(s.name);
+    return{
+      name:s.name,rank:sp?sp.rank:1,
+      comfort:{Gold:sp?sp.comfort_gold:0,Exp:sp?sp.comfort_exp:0,Jungle:sp?sp.comfort_jungle:0,Mage:sp?sp.comfort_mage:0,Roam:sp?sp.comfort_roam:0},
+      fixedRole:s.role!=='Auto'?s.role:null,roleLocked:s.role_locked
+    };
+  });
+  if(pool.length<10){document.getElementById('teams-out').innerHTML='<div class="alert alert-err">Need at least 10 players.</div>';return}
+  const K=Math.floor(pool.length/5);
+  const assign=assignRolesGreedy(pool,K);
+  if(!assign){document.getElementById('teams-out').innerHTML='<div class="alert alert-err">Could not assign roles. Check player coverage or too many fixed roles.</div>';return}
+  const teams=distributeTeams(assign,K);
+  const usedNames=new Set(assign.map(a=>a.player.name.toLowerCase()));
+  const subs=pool.filter(p=>!usedNames.has(p.name.toLowerCase()));
+  renderTeams(teams,subs);
+}
+
+const TEAM_COLORS=['team-1-h','team-2-h','team-3-h','team-4-h'];
+function renderTeams(teams,subs){
+  const outDiv=document.getElementById('teams-out');
+  const subsDiv=document.getElementById('subs-out');
+  let html='<div class="teams-grid">';
+  teams.forEach((team,idx)=>{
+    html+=`<div class="team-card"><div class="team-header ${TEAM_COLORS[idx%4]}">Team ${idx+1} <span style="font-weight:400;font-size:12px;opacity:.7">(${team.total.toFixed(1)} pts)</span></div>`;
+    team.players.forEach(a=>{html+=`<div class="team-player-row"><span><span class="badge badge-purple" style="margin-right:6px">${a.role}</span><strong>${esc(a.player.name)}</strong></span><span style="color:var(--muted);font-size:12px">${RANK_NAMES[a.player.rank]} · ${a.score.toFixed(1)}</span></div>`});
+    html+='</div>';
+  });
+  html+='</div>';
+  const strengths=teams.map(t=>t.total);
+  const diff=Math.max(...strengths)-Math.min(...strengths);
+  const q=diff<0.5?'Perfectly balanced':diff<2?'Well balanced':diff<5?'Reasonably balanced':'Uneven';
+  html+=`<p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">${q} · Max diff: ${diff.toFixed(1)} pts (${strengths.map(s=>s.toFixed(1)).join(', ')})</p>`;
+  outDiv.innerHTML=html;
+  subsDiv.innerHTML=subs.length?`<div class="card" style="margin-top:1rem"><div class="card-title">Substitutes</div><div style="display:flex;flex-wrap:wrap;gap:.5rem">${subs.map(p=>`<span class="badge badge-gray" style="font-size:13px;padding:5px 12px">${esc(p.name)} (${RANK_NAMES[p.rank]})</span>`).join('')}</div></div>`:'';
+  window.__lastTeams=teams;window.__lastSubs=subs;
+  document.getElementById('copy-md-btn').style.display='flex';
+}
+
+function copyMarkdown(){
+  const teams=window.__lastTeams;const subs=window.__lastSubs;if(!teams)return;
+  let md='# Scrimmage Teams\n\n';
+  teams.forEach((team,idx)=>{
+    md+=`## Team ${idx+1} (${team.total.toFixed(1)} pts)\n`;
+    team.players.forEach(p=>{md+=`- **${p.role}**: ${p.player.name}  *(${RANK_NAMES[p.player.rank]} · ${p.score.toFixed(1)})*\n`});
+    md+='\n';
+  });
+  if(subs&&subs.length){md+='## Substitutes\n';subs.forEach(p=>{md+=`- ${p.name} *(${RANK_NAMES[p.rank]})*\n`})}
+  md+=`\n*Generated on ${new Date().toLocaleDateString()}*`;
+  navigator.clipboard.writeText(md).then(()=>{
+    const btn=document.getElementById('copy-md-btn');btn.textContent='✅ Copied!';
+    setTimeout(()=>{btn.textContent='📋 Copy as Markdown'},2000);
+  }).catch(()=>alert('Copy failed. Please copy manually.'));
+}
+
+// ===================== BOOT =====================
+(function init(){
+  const sess=getSession();
+  if(sess){
+    document.getElementById('page-auth').classList.remove('active');
+    document.getElementById('main-nav').style.display='flex';
+    document.getElementById('nav-username').textContent=sess;
+    if(sess===ADMIN_NAME){
+      document.getElementById('nav-admin-badge').style.display='inline-block';
+      document.getElementById('nav-dashboard-link').onclick=()=>showPage('admin');
+      document.getElementById('nav-dashboard-link').textContent='Admin Panel';
+      showPage('admin');
+    }else{
+      showPage('dashboard');
+    }
+  }
+})();
+function handleCSVImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+    // Skip header if present (detect if first line starts with "name")
+    const start = lines[0] && lines[0].toLowerCase().startsWith('name') ? 1 : 0;
+    let imported = 0;
+    for (let i = start; i < lines.length; i++) {
+      const cols = lines[i].split(',');
+      if (cols.length < 8) continue;
+      const player = {
+        name: cols[0].trim(),
+        rank: Math.max(1, Math.min(10, parseInt(cols[1]) || 1)),
+        comfort_gold: Math.max(0, Math.min(3, parseInt(cols[2]) || 0)),
+        comfort_exp: Math.max(0, Math.min(3, parseInt(cols[3]) || 0)),
+        comfort_jungle: Math.max(0, Math.min(3, parseInt(cols[4]) || 0)),
+        comfort_mage: Math.max(0, Math.min(3, parseInt(cols[5]) || 0)),
+        comfort_roam: Math.max(0, Math.min(3, parseInt(cols[6]) || 0)),
+        locked: cols[7].trim() === '1'
+      };
+      if (player.name) {
+        upsertPlayer(player);
+        imported++;
+      }
+    }
+    showMsg('admin-msg', `✅ Imported ${imported} players from CSV.`, 'ok');
+    renderAdmin();
+  };
+  reader.readAsText(file);
+}
+</script>
+</body>
+</html>
